@@ -2,6 +2,7 @@
 # .NET Core Project
 bin
 obj
+global.json
 
 # compiled output
 /dist
