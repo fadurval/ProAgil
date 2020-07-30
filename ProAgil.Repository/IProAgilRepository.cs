@@ -14,7 +14,7 @@ namespace ProAgil.Repository
          //EVENTOS
         
         Task<Evento[]> GetEventoAsyncByTema(string tema, bool includePalestrantes);
-        Task<Evento[]> GetEventoAsync(bool includePalestrantes);
+        Task<Evento[]> GetAllEventoAsync(bool includePalestrantes);
         Task<Evento> GetEventoAsyncById(int EventoId, bool includePalestrantes);
 
         //PALESTRANTE
