@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -9,7 +10,7 @@ namespace ProAgil.WEBAPI.Dtos
         [Required (ErrorMessage="Local é obrigatório")]
         [StringLength(100, MinimumLength = 3)]
         public string Local { get; set; }
-        public string DataEvento { get; set; }
+        public DateTime DataEvento { get; set; }
         [Required (ErrorMessage = "Tema é obrigatório")]
         [StringLength(50, MinimumLength = 2)]
         public string Tema { get; set; }
