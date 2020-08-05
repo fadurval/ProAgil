@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -7,111 +9,170 @@ using ProAgil.Domain;
 using ProAgil.Repository;
 using ProAgil.WEBAPI.Dtos;
 
-namespace ProAgil.WEBAPI.Controllers {
-    [Route ("api/[Controller]")]
+namespace ProAgil.WEBAPI.Controllers
+{
+    [Route("api/[Controller]")]
     [ApiController]
-    public class EventoController : ControllerBase {
+    public class EventoController : ControllerBase
+    {
         public IProAgilRepository _repo { get; }
         public IMapper _mapper { get; }
-        public EventoController (IProAgilRepository repo, IMapper mapper) {
+        public EventoController(IProAgilRepository repo, IMapper mapper)
+        {
             _mapper = mapper;
             _repo = repo;
 
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get () {
-            try {
-                var eventos = await _repo.GetAllEventoAsync (true);
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var eventos = await _repo.GetAllEventoAsync(true);
                 var results = _mapper.Map<EventoDto[]>(eventos);
-                return Ok (results);
-            } catch (System.Exception ex) {
+                return Ok(results);
+            }
+            catch (System.Exception ex)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
             }
 
         }
 
-        [HttpGet ("{EventoId}")]
-        public async Task<IActionResult> Get (int EventoId) {
-            try {
-                var evento = await _repo.GetEventoAsyncById (EventoId, true);
+        [HttpPost("upload")]
+        public async Task<IActionResult> upload()
+        {
+            try
+            {
+                var file = Request.Form.Files[0];
+                var folderName = Path.Combine("Resources", "Images");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                if (file.Length > 0)
+                {
+                    var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName;
+                    var fullPath = Path.Combine(pathToSave, filename.Replace("\"", " ").Trim());
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+                }
+                return Ok();
+            }
+            catch (System.Exception ex)
+            {
+
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
+            }
+
+            return BadRequest("Erro ao tentar carregar imagem");
+
+        }
+
+        [HttpGet("{EventoId}")]
+        public async Task<IActionResult> Get(int EventoId)
+        {
+            try
+            {
+                var evento = await _repo.GetEventoAsyncById(EventoId, true);
                 var results = _mapper.Map<EventoDto>(evento);
-                return Ok (results);
-            } catch (System.Exception) {
+                return Ok(results);
+            }
+            catch (System.Exception)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
             }
 
         }
 
-        [HttpGet ("getByTema/{tema}")]
-        public async Task<IActionResult> Get (string tema) {
-            try {                
-                var eventos = await _repo.GetEventoAsyncByTema (tema, true);
+        [HttpGet("getByTema/{tema}")]
+        public async Task<IActionResult> Get(string tema)
+        {
+            try
+            {
+                var eventos = await _repo.GetEventoAsyncByTema(tema, true);
                 var results = _mapper.Map<EventoDto[]>(eventos);
-                return Ok (results);
-            } catch (System.Exception) {
+                return Ok(results);
+            }
+            catch (System.Exception)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
             }
 
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post (EventoDto model) {
-            try {
+        public async Task<IActionResult> Post(EventoDto model)
+        {
+            try
+            {
                 var evento = _mapper.Map<Evento>(model);
-                _repo.Add (evento);
-                if (await _repo.SaveChangesAsync ()) {
-                    return Created ($"/api/evento/{model.Id}", _mapper.Map<EventoDto>(evento));
+                _repo.Add(evento);
+                if (await _repo.SaveChangesAsync())
+                {
+                    return Created($"/api/evento/{model.Id}", _mapper.Map<EventoDto>(evento));
                 }
 
-            } catch (System.Exception ex) {
+            }
+            catch (System.Exception ex)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
             }
 
-            return BadRequest ();
+            return BadRequest();
 
         }
 
-        [HttpPut ("{EventoId}")]
-        public async Task<IActionResult> Put (int EventoId, EventoDto model) {
-            try {
-                var evento = await _repo.GetEventoAsyncById (EventoId, false);                
-                if (evento == null) return NotFound ();
+        [HttpPut("{EventoId}")]
+        public async Task<IActionResult> Put(int EventoId, EventoDto model)
+        {
+            try
+            {
+                var evento = await _repo.GetEventoAsyncById(EventoId, false);
+                if (evento == null) return NotFound();
                 _mapper.Map(model, evento);
                 _repo.Update(evento);
-                if (await _repo.SaveChangesAsync ()) {
-                    return Created ($"/api/evento/{model.Id}", _mapper.Map<EventoDto>(evento));
+                if (await _repo.SaveChangesAsync())
+                {
+                    return Created($"/api/evento/{model.Id}", _mapper.Map<EventoDto>(evento));
                 }
 
-            } catch (System.Exception) {
+            }
+            catch (System.Exception)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
             }
 
-            return BadRequest ();
+            return BadRequest();
 
         }
 
-        [HttpDelete ("{EventoId}")]
-        public async Task<IActionResult> Delete (int EventoId) {
-            try {
-                var evento = await _repo.GetEventoAsyncById (EventoId, false);
-                if (evento == null) return NotFound ();
-                _repo.Delete (evento);
-                if (await _repo.SaveChangesAsync ()) {
-                    return Ok ();
+        [HttpDelete("{EventoId}")]
+        public async Task<IActionResult> Delete(int EventoId)
+        {
+            try
+            {
+                var evento = await _repo.GetEventoAsyncById(EventoId, false);
+                if (evento == null) return NotFound();
+                _repo.Delete(evento);
+                if (await _repo.SaveChangesAsync())
+                {
+                    return Ok();
                 }
 
-            } catch (System.Exception) {
+            }
+            catch (System.Exception)
+            {
 
-                return this.StatusCode (StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Deu ruim no Banco de Dados");
             }
 
-            return BadRequest ();
+            return BadRequest();
 
         }
     }
