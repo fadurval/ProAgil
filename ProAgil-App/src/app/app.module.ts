@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
@@ -21,17 +21,24 @@ import { ContatosComponent } from './contatos/contatos.component';
 import { TituloComponent } from './_shared/titulo/titulo.component';
 
 import { DateTimeFormatPipePipe } from '../app/_helpers/DateTimeFormatPipe.pipe';
+import { UserComponent } from './user/user.component';
+import { LoginComponent } from './user/login/login.component';
+import { RegistrationComponent } from './user/registration/registration.component';
+import { AuthInterceptor } from '../app/auth/auth.interceptor';
 
 @NgModule({
   declarations: [
-   AppComponent,
-   NavComponent,
-   EventosComponent,
-   PalestrantesComponent,
-   DashboardComponent,
-   ContatosComponent,
-   TituloComponent,
-   DateTimeFormatPipePipe
+    AppComponent,
+    NavComponent,
+    EventosComponent,
+    PalestrantesComponent,
+    DashboardComponent,
+    ContatosComponent,
+    TituloComponent,
+    UserComponent,
+    LoginComponent,
+    RegistrationComponent,
+    DateTimeFormatPipePipe
   ],
   imports: [
     BrowserModule,
@@ -42,16 +49,22 @@ import { DateTimeFormatPipePipe } from '../app/_helpers/DateTimeFormatPipe.pipe'
       timeOut: 3000,
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
-      progressBar: true
+      progressBar: true,
     }),
     TooltipModule.forRoot(),
     ModalModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
-  providers: [EventoService],
-  bootstrap: [AppComponent]
+  providers: [EventoService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
