@@ -16,9 +16,15 @@ export class NavComponent implements OnInit {
 
   ngOnInit() {
   }
+
+  showMenu(){
+    return this.router.url !== '/user/login';
+  }
+
   loggedIn(){
     return this.authService.loggedIn();
   }
+  
   logout(){
     localStorage.removeItem('token');
     this.toastr.show('Logout Efetuado!');

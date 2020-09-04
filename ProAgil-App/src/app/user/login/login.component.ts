@@ -6,33 +6,33 @@ import { AuthService } from 'src/app/_services/auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-
   titulo = 'Login';
   model: any = {};
 
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     public router: Router,
-    public toastr: ToastrService) { }
+    public toastr: ToastrService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (localStorage.getItem('token') !== null) {
       this.router.navigate(['/dashboard']);
     }
   }
 
-  login(){
+  login(): void {
     this.authService.login(this.model).subscribe(
-      ()=>{
+      () => {
         this.router.navigate(['/dashboard']);
         this.toastr.success('Login Efetuado!');
       },
-      error =>{
+      (error) => {
         this.toastr.error('Falha no Login!');
       }
-    )
+    );
   }
-
 }

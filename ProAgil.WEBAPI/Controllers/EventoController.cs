@@ -67,7 +67,7 @@ namespace ProAgil.WEBAPI.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError, $"Deu ruim no Banco de Dados {ex.Message}");
             }
 
-            return BadRequest("Erro ao tentar carregar imagem");
+            return  BadRequest("Erro ao tentar carregar imagem");
 
         }
 
